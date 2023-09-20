@@ -8,7 +8,7 @@ from torchvision import datasets, models, transforms
 import os
 from functions import *
 from train import *
-
+from resnet import resnet18
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Define path
@@ -82,35 +82,24 @@ if __name__ == '__main__':
     n_classes = len(categories)
     print('Length train: {} Length test: {}'.format(len(data['train']), len(data['valid'])))
 
-    """
-
-
-    train_data = datasets.ImageFolder(root=traindir, transform=image_transforms['train']),
-    valid_data = datasets.ImageFolder(root=traindir, transform=image_transforms['valid'])
-
-    print('Length train: {} Length test: {}'.format(len(train_data), len(valid_data)))
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True,  num_workers=num_workers)
-    valid_loader = torch.utils.data.DataLoader(valid_data, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-    print('Number of train batches: {} Number of test batches: {}'.format(len(train_loader), len(valid_loader)))
-
-    categories = []
-    for d in os.listdir(traindir):
-        categories.append(d)
-
-    n_classes = len(categories)
-    """
-
     # get some random training images
     dataiter = iter(dataloaders['train'])
     images, labels = iter(dataiter).__next__()
 
     # show images
-    imshow(torchvision.utils.make_grid(images))
+    imshow_tensor(torchvision.utils.make_grid(images), title=[categories[x] for x in labels])
     # print labels
     print(' '.join('%5s' % categories[labels[j]] for j in range(batch_size)))
 
     # Define the network with pretrained models
-    model = models.resnet18(weights="IMAGENET1K_V1")
+    #model = models.resnet18(weights="IMAGENET1K_V1")
+
+    model = resnet18()
+    # load pretrain weights
+    model_weight_path = "resnet18_Weights_IMAGENET1K_V1.pth"
+
+    model.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
+
     for param in model.parameters():
         param.requires_grad = False
     in_channel = model.fc.in_features
