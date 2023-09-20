@@ -10,18 +10,19 @@ from functions import *
 from train import *
 from resnet import resnet18
 
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # Define path
     traindir = f"data/cifar-10-mini/train"
     validdir = f"data/cifar-10-mini/val"
-    #traindir = f"data/cifar-10-batches-py/train"
-    #validdir = f"data/cifar-10-batches-py/val"
+    # traindir = f"data/cifar-10-batches-py/train"
+    # validdir = f"data/cifar-10-batches-py/val"
     # Change to fit hardware
     num_workers = 0
 
     batch_size = 8
-    n_epochs = 10
+    n_epochs = 5
 
     learning_rate = 0.001
 
@@ -68,8 +69,10 @@ if __name__ == '__main__':
     # Dataloader iterators, make sure to shuffle
 
     dataloaders = {
-        'train': torch.utils.data.DataLoader(data['train'], batch_size=batch_size, shuffle=True, num_workers=num_workers),
-        'valid': torch.utils.data.DataLoader(data['valid'], batch_size=batch_size, shuffle=False, num_workers=num_workers)
+        'train': torch.utils.data.DataLoader(data['train'], batch_size=batch_size, shuffle=True,
+                                             num_workers=num_workers),
+        'valid': torch.utils.data.DataLoader(data['valid'], batch_size=batch_size, shuffle=False,
+                                             num_workers=num_workers)
     }
 
     # Iterate through the dataloader once
@@ -93,16 +96,16 @@ if __name__ == '__main__':
     print(' '.join('%5s' % categories[labels[j]] for j in range(batch_size)))
 
     # Define the network with pretrained models
-    #model = models.resnet18(weights="IMAGENET1K_V1")
+    # model = models.resnet18(weights="IMAGENET1K_V1")
 
     model = resnet18()
     # load pretrain weights
-    #model_weight_path = "resnet18_Weights_IMAGENET1K_V1.pth"
+    model_weight_path = "resnet18_Weights_IMAGENET1K_V1.pth"
 
-    #model.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
+    model.load_state_dict(torch.load(model_weight_path, map_location='cpu'))
 
-    #for param in model.parameters():
-    #    param.requires_grad = False
+    for param in model.parameters():
+        param.requires_grad = False
     in_channel = model.fc.in_features
     model.fc = nn.Linear(in_channel, n_classes)
 
@@ -112,7 +115,7 @@ if __name__ == '__main__':
         p.numel() for p in model.parameters() if p.requires_grad)
     print(f'{total_trainable_params:,} training parameters.')
 
-    #cover class to index
+    # cover class to index
     model.class_to_idx = data['train'].class_to_idx
     model.idx_to_class = {
         idx: class_
@@ -123,7 +126,7 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), learning_rate)
 
-    save_file_name = 'resnet18_model_best_model.pt'
+    save_file_name = 'resnet18_model_best_model_ft.pt'
 
     model = train(model,
                   criterion,
@@ -135,7 +138,7 @@ if __name__ == '__main__':
                   n_epochs,
                   print_every)
 
-    #"""
+    # """
     dataiter = iter(dataloaders['valid'])
     images, labels = iter(dataiter).__next__()
 
@@ -147,5 +150,5 @@ if __name__ == '__main__':
     _, predicted = torch.max(outputs, 1)
 
     print('Predicted: ', ' '.join('%5s' % categories[predicted[j]] for j in range(batch_size)))
-    
-    #"""
+
+    # """
