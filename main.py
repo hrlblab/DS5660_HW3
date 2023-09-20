@@ -21,7 +21,7 @@ if __name__ == '__main__':
     num_workers = 0
 
     batch_size = 8
-    n_epochs = 10
+    n_epochs = 5
 
     learning_rate = 0.001
 
@@ -125,15 +125,15 @@ if __name__ == '__main__':
 
     save_file_name = 'resnet18_model_best_model.pt'
 
-    model = train(model,
-                  criterion,
-                  optimizer,
-                  dataloaders['train'],
-                  dataloaders['valid'],
-                  save_file_name,
-                  max_epochs_stop,
-                  n_epochs,
-                  print_every)
+    model, history = train(model,
+                           criterion,
+                           optimizer,
+                           dataloaders['train'],
+                           dataloaders['valid'],
+                           save_file_name,
+                           max_epochs_stop,
+                           n_epochs,
+                           print_every)
 
     #"""
     dataiter = iter(dataloaders['valid'])

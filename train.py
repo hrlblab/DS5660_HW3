@@ -5,6 +5,8 @@ from timeit import default_timer as timer
 import torch
 import pandas as pd
 
+
+from mobilenetv3 import mobilenetv3_large, mobilenetv3_small
 from tqdm import tqdm
 
 def train(model,
@@ -48,13 +50,14 @@ def train(model,
         print(f'Model has been trained for: {model.epochs} epochs.\n')
     except:
         model.epochs = 0
-        #print(f'Starting Training from Scratch.\n')
+        print(f'Starting Training.\n')
 
     overall_start = timer()
-
+    #print(f'main loop.\n')
     # Main loop
     for epoch in range(n_epochs):
         # keep track of training and validation loss each epoch
+        #print(f'each epoch.\n')
         train_loss = 0.0
         valid_loss = 0.0
 
@@ -118,6 +121,7 @@ def train(model,
 
                 # Validation loop
                 for data, target in valid_loader:
+
                     # Forward pass
                     model = model.float()
                     output = model(data.float())
@@ -185,7 +189,14 @@ def train(model,
                         # Attach the optimizer
                         model.optimizer = optimizer
 
-                        return model
+                        # Format history
+                        history = pd.DataFrame(
+                            history,
+                            columns=[
+                                'train_loss', 'valid_loss', 'train_acc',
+                                'valid_acc'
+                            ])
+                        return model, history
         print(f'Epoch: {epoch}\t{timer() - start:.2f} seconds elapsed in epoch.')
 
     # Attach the optimizer
@@ -198,4 +209,8 @@ def train(model,
     print(
         f'{total_time:.2f} total seconds elapsed. {total_time / (epoch+1):.2f} seconds per epoch.'
     )
-    return model
+    # Format history
+    history = pd.DataFrame(
+        history,
+        columns=['train_loss', 'valid_loss', 'train_acc', 'valid_acc'])
+    return model, history
